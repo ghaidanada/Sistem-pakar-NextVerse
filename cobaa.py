@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 import os
+from streamlit_option_menu import option_menu
 
 # Styling
 st.markdown("""
