@@ -1,7 +1,6 @@
 import streamlit as st
 import pickle
 import numpy as np
-from streamlit_option_menu import option_menu
 import os
 
 # Styling
