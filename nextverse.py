@@ -260,7 +260,7 @@ elif st.session_state["selected_page"] == "Diagnosis":
 
             if next_fakta_index < total_fakta:
                 # Menampilkan pertanyaan dalam kotak
-                tampilkan_pertanyaan_dalam_kotak(f"Minat bakat kamu: {current_fakta[next_fakta_index]}")
+                tampilkan_pertanyaan_dalam_kotak(f"Minat bakat kamu: {current_fakta[next_fakta_index]}?")
 
                 # Menampilkan radio button untuk jawaban
                 jawaban = st.radio("", ["Ya", "Tidak"], key=f"step{step}_fakta{next_fakta_index}", index=None)
@@ -298,7 +298,7 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 st.markdown("**Jurusan Rekomendasi:**")
                 for item in jurusan:
                     st.write(f"- {item}")
-                   
+                
                 # Tombol Muat Ulang baru muncul setelah hasil
                 if st.button("Dapatkan Rekomendasi Lagi"):
                     st.session_state.clear()  # Clear session state to reset everything
