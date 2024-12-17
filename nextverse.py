@@ -299,9 +299,10 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 for item in jurusan:
                     st.write(f"- {item}")
 
-                else:
-                    st.warning("Maaf, tidak ada kecerdasan yang cocok berdasarkan jawaban Anda.")
-                
+        # Peringatan jika tidak ada kecerdasan yang cocok
+        if not kecerdasan_ditemukan:
+            st.warning("Maaf, tidak ada kecerdasan yang cocok berdasarkan jawaban Anda.")
+               
                 # Tombol Muat Ulang baru muncul setelah hasil
                 if st.button("Dapatkan Rekomendasi Lagi"):
                     st.session_state.clear()  # Clear session state to reset everything
