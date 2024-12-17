@@ -167,7 +167,7 @@ elif st.session_state["selected_page"] == "Diagnosis":
 
         # Inisialisasi session state
         if 'step' not in st.session_state:
-            st.session_state['step'] = 0
+            st.session_state['step'] = 1
         if 'jawaban' not in st.session_state:
             st.session_state['jawaban'] = {}
         if 'fakta' not in st.session_state:
@@ -298,10 +298,6 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 st.markdown("**Jurusan Rekomendasi:**")
                 for item in jurusan:
                     st.write(f"- {item}")
-
-            # Peringatan jika tidak ada kecerdasan yang cocok
-            if not kecerdasan_ditemukan:
-                st.warning("Maaf, tidak ada kecerdasan yang cocok berdasarkan jawaban Anda.")
                    
                 # Tombol Muat Ulang baru muncul setelah hasil
                 if st.button("Dapatkan Rekomendasi Lagi"):
