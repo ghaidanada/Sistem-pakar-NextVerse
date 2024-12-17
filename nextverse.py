@@ -259,57 +259,39 @@ elif st.session_state["selected_page"] == "Diagnosis":
         if step in fakta_kecerdasan and st.session_state['hasil'] is None:
             current_fakta = fakta_kecerdasan[step]
             next_fakta_index = len(st.session_state['fakta'])
-
+    
             if next_fakta_index < total_fakta:
                 # Menampilkan pertanyaan dalam kotak
                 tampilkan_pertanyaan_dalam_kotak(f"Minat bakat kamu: {current_fakta[next_fakta_index]}")
-
+    
                 # Menampilkan radio button untuk jawaban
                 jawaban = st.radio("", ["Ya", "Tidak"], key=f"step{step}_fakta{next_fakta_index}", index=None)
-
+    
                 # Tombol lanjut
                 lanjut_button = st.button("Lanjut")
-
-        else:
-                if step in fakta_kecerdasan and st.session_state['hasil'] is None:
-                    current_fakta = fakta_kecerdasan[step]
-                    next_fakta_index = len(st.session_state['fakta'])
-        
-                    if next_fakta_index < len(current_fakta):
-                        pertanyaan = current_fakta[next_fakta_index]
-                        st.write(f"Minat bakat kamu: **{pertanyaan}**")
-        
-                        jawaban = st.radio("", ["Ya", "Tidak"], key=f"step{step}_fakta{next_fakta_index}", index=None)
-                        lanjut_button = st.button("Lanjut")
-        
-                        if lanjut_button and jawaban is not None:
-                            if jawaban == "Tidak":
-                                st.session_state['fakta_tidak_total'] += 1  # Tambahkan total "Tidak"
-                            st.session_state['fakta'].append(jawaban)
-        
-                            if jawaban == "Tidak" and next_fakta_index == len(current_fakta) - 1:
-                                st.session_state['step'] += 1
-                                st.session_state['fakta'] = []
-                            st.rerun()
-
-            else:
-                # Evaluasi semua "Ya" di step saat ini
-                if all(j == "Ya" for j in st.session_state['fakta']):
-                    st.session_state['hasil'] = rekomendasi_jurusan[step]
-                else:
-                    st.session_state['step'] += 1
-                    st.session_state['fakta'] = []
-                st.rerun()
-
+    
+                if lanjut_button and jawaban is not None:
+                    if jawaban == "Tidak":
+                        st.session_state['fakta_tidak_total'] += 1  # Tambahkan total "Tidak"
+                        # Evaluasi dan langsung keluar jika "Tidak" ditemukan
+                        st.session_state['hasil'] = None  # Optional, reset hasil to be empty
+                        st.session_state['step'] += 1  # Skip this set of questions, go to next
+                        st.session_state['fakta'] = []  # Clear previous answers
+                        st.rerun()  # Trigger page refresh to go to next step
+                    else:
+                        st.session_state['fakta'].append(jawaban)
+    
+                        if next_fakta_index == len(current_fakta) - 1:
+                            st.session_state['step'] += 1
+                            st.session_state['fakta'] = []
+                            st.rerun()  # Refresh the page to continue to the next step
+    
         # ------------------ Menampilkan Hasil Diagnosis ------------------
         if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
-            kecerdasan_id = st.session_state['step'] - 1  # Get the corresponding intelligence ID (step-1)
-            
+            # Display the recommended majors if a valid result exists
+            kecerdasan_id = st.session_state['step'] - 1
             if kecerdasan_id in deskripsi_kecerdasan:
-                # Get the description and recommended majors for the selected intelligence
                 jenis_kecerdasan, deskripsi, jurusan = deskripsi_kecerdasan[kecerdasan_id]
-                
-                # Display the results
                 st.success(f"Jenis Kecerdasan: {jenis_kecerdasan}")
                 st.write(f"Deskripsi: {deskripsi}")
                 st.markdown("**Jurusan Rekomendasi:**")
@@ -321,7 +303,7 @@ elif st.session_state["selected_page"] == "Diagnosis":
                     st.session_state.clear()  # Clear session state to reset everything
                     st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
                     st.rerun()  # Refresh the page to show the Diagnosis page
-
+                
                 # Tombol Logout di Dashboard atau Diagnosis
                 if st.session_state["user_authenticated"]:
                     if st.button("Logout"):
