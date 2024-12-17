@@ -305,11 +305,11 @@ elif st.session_state["selected_page"] == "Diagnosis":
                     st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
                     st.rerun()  # Refresh the page to show the Diagnosis page
 
-                # Tombol Logout di Dashboard atau Diagnosis
-                if st.session_state["user_authenticated"]:
-                    if st.button("Logout"):
-                        logout()  # Memanggil fungsi logout untuk mengatur session dan mereload halaman
-                        st.success("Berhasil logout!")
+        # Tombol Logout di Dashboard atau Diagnosis
+        if st.session_state["user_authenticated"]:
+            if st.button("Logout"):
+                logout()  # Memanggil fungsi logout untuk mengatur session dan mereload halaman
+                st.success("Berhasil logout!")
             
     # Call forward_chaining function here directly, no need for `if __name__ == "__main__":`
     forward_chaining()
