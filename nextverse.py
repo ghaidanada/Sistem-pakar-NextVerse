@@ -284,6 +284,10 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 st.session_state['fakta'] = []  # Reset fakta
                 st.rerun()
 
+
+        # Flag untuk mengecek apakah ada hasil rekomendasi
+        ada_hasil = False
+     
         # ------------------ Menampilkan Hasil Diagnosis ------------------
         if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
             kecerdasan_id = st.session_state['step'] - 1  # Get the corresponding intelligence ID (step-1)
@@ -298,6 +302,11 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 st.markdown("**Jurusan Rekomendasi:**")
                 for item in jurusan:
                     st.write(f"- {item}")
+
+            # Setelah semua kecerdasan dicek, jika tidak ada hasil:
+            if st.session_state['step'] > len(fakta_kecerdasan) and not ada_hasil:
+                st.error("Maaf, tidak ada rekomendasi jurusan yang sesuai dengan jawaban kamu.")
+
                 
                 # Tombol Muat Ulang baru muncul setelah hasil
                 if st.button("Dapatkan Rekomendasi Lagi"):
