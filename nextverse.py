@@ -167,7 +167,7 @@ elif st.session_state["selected_page"] == "Diagnosis":
 
         # Inisialisasi session state
         if 'step' not in st.session_state:
-            st.session_state['step'] = 1
+            st.session_state['step'] = 0
         if 'jawaban' not in st.session_state:
             st.session_state['jawaban'] = {}
         if 'fakta' not in st.session_state:
