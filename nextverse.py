@@ -280,9 +280,15 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 # Evaluasi jawaban fakta per kecerdasan
                 if all(j == "Ya" for j in st.session_state['fakta']):
                     st.session_state['hasil'] = rekomendasi_jurusan[step]
-                st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
-                st.session_state['fakta'] = []  # Reset fakta
-                st.rerun()
+                    st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
+                    st.session_state['fakta'] = []  # Reset fakta
+                    st.rerun()
+
+                if jawaban == "Tidak":
+                    st.session_state['hasil'] = "Maaf, tidak ada rekomendasi untuk kamu."
+                    st.session_state.clear()  # Clear session state to reset everything
+                    st.stop()  # Stop further execution
+
 
         # ------------------ Menampilkan Hasil Diagnosis ------------------
         if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
