@@ -174,6 +174,8 @@ elif st.session_state["selected_page"] == "Diagnosis":
             st.session_state['fakta'] = []
         if 'hasil' not in st.session_state:
             st.session_state['hasil'] = None  # Hasil awal belum ada
+        if 'tidak_ada_kecerdasan' not in st.session_state:
+            st.session_state['tidak_ada_kecerdasan'] = False
 
         # Daftar fakta per kecerdasan
         fakta_kecerdasan = {
@@ -248,10 +250,11 @@ elif st.session_state["selected_page"] == "Diagnosis":
         step = st.session_state['step']
 
         # Pastikan step tidak melebihi total kecerdasan yang ada
-        if step > len(fakta_kecerdasan):
-            step = 1  # Mulai lagi dari awal jika step lebih dari jumlah kecerdasan
-
-        total_fakta = len(fakta_kecerdasan[step])
+        if step <= len(fakta_kecerdasan):
+            total_fakta = len(fakta_kecerdasan[step])
+            current_fakta = fakta_kecerdasan[step]
+            next_fakta_index = len(st.session_state['fakta'])
+            total_fakta = len(fakta_kecerdasan[step])
 
         # Menampilkan pertanyaan dan tombol Lanjut
         if step in fakta_kecerdasan and st.session_state['hasil'] is None:
@@ -272,22 +275,22 @@ elif st.session_state["selected_page"] == "Diagnosis":
                     st.session_state['fakta'].append(jawaban)
                     if jawaban == "Tidak":
                         st.session_state['step'] += 1  # Pindah ke step berikutnya jika jawabannya "Tidak"
-                        if st.session_state['step'] > len(fakta_kecerdasan):
-                            st.session_state['hasil'] = "Tidak ada kecerdasan yang sesuai"
+                        st.session_state['fakta'] = []  # Reset fakta jika "Tidak"
                         st.rerun()
                     else:
                         st.rerun()
             else:
-                # Evaluasi jawaban fakta per kecerdasan
-                if all(j == "Ya" for j in st.session_state['fakta']):
-                    st.session_state['hasil'] = rekomendasi_jurusan[step]
-                else:
-                    st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
-                    st.session_state['fakta'] = []  # Reset fakta untuk kecerdasan berikutnya
-                    if st.session_state['step'] > len(fakta_kecerdasan):  # Jika semua kecerdasan sudah ditanya
-                        st.session_state['hasil'] = "Tidak ada kecerdasan yang sesuai"
-                st.rerun()
-                
+            if all(j == "Ya" for j in st.session_state['fakta']):
+                st.session_state['hasil'] = rekomendasi_jurusan[step]
+            else:
+                st.session_state['step'] += 1
+                st.session_state['fakta'] = []
+            st.rerun()
+
+        # Jika semua step sudah dilalui
+        elif step > len(fakta_kecerdasan) and not st.session_state['hasil']:
+            st.session_state['tidak_ada_kecerdasan'] = True
+            
         # ------------------ Menampilkan Hasil Diagnosis ------------------
         if 'hasil' in st.session_state:
             if st.session_state['hasil'] == "Tidak ada kecerdasan yang sesuai":
