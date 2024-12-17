@@ -64,7 +64,7 @@ def validate_password(password):
 def logout():
     st.session_state["user_authenticated"] = False
     st.session_state["selected_page"] = "Dashboard"
-    st.experimental_rerun()
+    st.rerun()
 
 # ------------------ Halaman Dashboard ------------------
 if st.session_state["selected_page"] == "Dashboard":
@@ -273,16 +273,16 @@ elif st.session_state["selected_page"] == "Diagnosis":
                     if jawaban == "Tidak":
                         st.session_state['step'] += 1  # Pindah ke step berikutnya jika jawabannya "Tidak"
                         st.session_state['fakta'] = []  # Reset fakta untuk step ini
-                        st.experimental_rerun()
+                        st.rerun()
                     else:
-                        st.experimental_rerun()
+                        st.rerun()
             else:
                 # Evaluasi jawaban fakta per kecerdasan
                 if all(j == "Ya" for j in st.session_state['fakta']):
                     st.session_state['hasil'] = rekomendasi_jurusan[step]
                 st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
                 st.session_state['fakta'] = []  # Reset fakta
-                st.experimental_rerun()
+                st.rerun()
 
         # ------------------ Menampilkan Hasil Diagnosis ------------------
         if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
@@ -303,7 +303,7 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 if st.button("Dapatkan Rekomendasi Lagi"):
                     st.session_state.clear()  # Clear session state to reset everything
                     st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
-                    st.experimental_rerun()  # Refresh the page to show the Diagnosis page
+                    st.rerun()  # Refresh the page to show the Diagnosis page
 
                 # Tombol Logout di Dashboard atau Diagnosis
                 if st.session_state["user_authenticated"]:
