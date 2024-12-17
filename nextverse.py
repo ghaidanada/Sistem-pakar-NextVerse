@@ -174,6 +174,8 @@ elif st.session_state["selected_page"] == "Diagnosis":
             st.session_state['fakta'] = []
         if 'hasil' not in st.session_state:
             st.session_state['hasil'] = None  # Hasil awal belum ada
+        if 'fakta_tidak_total' not in st.session_state:
+            st.session_state['fakta_tidak_total'] = 0  # Hitung semua "Tidak"
 
         # Daftar fakta per kecerdasan
         fakta_kecerdasan = {
@@ -268,26 +270,37 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 # Tombol lanjut
                 lanjut_button = st.button("Lanjut")
 
-                if lanjut_button and jawaban is not None:  # Cek jika tombol lanjut ditekan dan pilihan sudah ada
-                    st.session_state['fakta'].append(jawaban)
-                    if jawaban == "Tidak":
-                        st.session_state['step'] += 1  # Pindah ke step berikutnya jika jawabannya "Tidak"
-                        st.session_state['fakta'] = []  # Reset fakta untuk step ini
-                        st.rerun()
-                    else:
-                        st.rerun()
+        else:
+                if step in fakta_kecerdasan and st.session_state['hasil'] is None:
+                    current_fakta = fakta_kecerdasan[step]
+                    next_fakta_index = len(st.session_state['fakta'])
+        
+                    if next_fakta_index < len(current_fakta):
+                        pertanyaan = current_fakta[next_fakta_index]
+                        st.write(f"Minat bakat kamu: **{pertanyaan}**")
+        
+                        jawaban = st.radio("", ["Ya", "Tidak"], key=f"step{step}_fakta{next_fakta_index}", index=None)
+                        lanjut_button = st.button("Lanjut")
+        
+                        if lanjut_button and jawaban is not None:
+                            if jawaban == "Tidak":
+                                st.session_state['fakta_tidak_total'] += 1  # Tambahkan total "Tidak"
+                            st.session_state['fakta'].append(jawaban)
+        
+                            if jawaban == "Tidak" and next_fakta_index == len(current_fakta) - 1:
+                                st.session_state['step'] += 1
+                                st.session_state['fakta'] = []
+                            st.rerun()
+
             else:
-                # Evaluasi jawaban fakta per kecerdasan
+                # Evaluasi semua "Ya" di step saat ini
                 if all(j == "Ya" for j in st.session_state['fakta']):
                     st.session_state['hasil'] = rekomendasi_jurusan[step]
-                st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
-                st.session_state['fakta'] = []  # Reset fakta
+                else:
+                    st.session_state['step'] += 1
+                    st.session_state['fakta'] = []
                 st.rerun()
 
-
-        # Flag untuk mengecek apakah ada hasil rekomendasi
-        ada_hasil = False
-     
         # ------------------ Menampilkan Hasil Diagnosis ------------------
         if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
             kecerdasan_id = st.session_state['step'] - 1  # Get the corresponding intelligence ID (step-1)
@@ -302,11 +315,6 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 st.markdown("**Jurusan Rekomendasi:**")
                 for item in jurusan:
                     st.write(f"- {item}")
-
-            # Setelah semua kecerdasan dicek, jika tidak ada hasil:
-            if st.session_state['step'] > len(fakta_kecerdasan) and not ada_hasil:
-                st.error("Maaf, tidak ada rekomendasi jurusan yang sesuai dengan jawaban kamu.")
-
                 
                 # Tombol Muat Ulang baru muncul setelah hasil
                 if st.button("Dapatkan Rekomendasi Lagi"):
