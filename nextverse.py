@@ -64,7 +64,7 @@ def validate_password(password):
 def logout():
     st.session_state["user_authenticated"] = False
     st.session_state["selected_page"] = "Dashboard"
-    st.rerun()
+    st.experimental_rerun()
 
 # ------------------ Halaman Dashboard ------------------
 if st.session_state["selected_page"] == "Dashboard":
@@ -174,8 +174,6 @@ elif st.session_state["selected_page"] == "Diagnosis":
             st.session_state['fakta'] = []
         if 'hasil' not in st.session_state:
             st.session_state['hasil'] = None  # Hasil awal belum ada
-        if 'tidak_ada_kecerdasan' not in st.session_state:
-            st.session_state['tidak_ada_kecerdasan'] = False
 
         # Daftar fakta per kecerdasan
         fakta_kecerdasan = {
@@ -250,11 +248,10 @@ elif st.session_state["selected_page"] == "Diagnosis":
         step = st.session_state['step']
 
         # Pastikan step tidak melebihi total kecerdasan yang ada
-        if step <= len(fakta_kecerdasan):
-            total_fakta = len(fakta_kecerdasan[step])
-            current_fakta = fakta_kecerdasan[step]
-            next_fakta_index = len(st.session_state['fakta'])
-            total_fakta = len(fakta_kecerdasan[step])
+        if step > len(fakta_kecerdasan):
+            step = 1  # Mulai lagi dari awal jika step lebih dari jumlah kecerdasan
+
+        total_fakta = len(fakta_kecerdasan[step])
 
         # Menampilkan pertanyaan dan tombol Lanjut
         if step in fakta_kecerdasan and st.session_state['hasil'] is None:
@@ -263,7 +260,7 @@ elif st.session_state["selected_page"] == "Diagnosis":
 
             if next_fakta_index < total_fakta:
                 # Menampilkan pertanyaan dalam kotak
-                tampilkan_pertanyaan_dalam_kotak(f"Minat bakat kamu: {current_fakta[next_fakta_index]}")
+                tampilkan_pertanyaan_dalam_kotak(f"Minat bakat kamu: {current_fakta[next_fakta_index]}?")
 
                 # Menampilkan radio button untuk jawaban
                 jawaban = st.radio("", ["Ya", "Tidak"], key=f"step{step}_fakta{next_fakta_index}", index=None)
@@ -275,51 +272,44 @@ elif st.session_state["selected_page"] == "Diagnosis":
                     st.session_state['fakta'].append(jawaban)
                     if jawaban == "Tidak":
                         st.session_state['step'] += 1  # Pindah ke step berikutnya jika jawabannya "Tidak"
-                        st.session_state['fakta'] = []  # Reset fakta jika "Tidak"
-                        st.rerun()
+                        st.session_state['fakta'] = []  # Reset fakta untuk step ini
+                        st.experimental_rerun()
                     else:
-                        st.rerun()
+                        st.experimental_rerun()
             else:
+                # Evaluasi jawaban fakta per kecerdasan
                 if all(j == "Ya" for j in st.session_state['fakta']):
                     st.session_state['hasil'] = rekomendasi_jurusan[step]
-                else:
-                    st.session_state['step'] += 1
-                    st.session_state['fakta'] = []
-                st.rerun()
+                st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
+                st.session_state['fakta'] = []  # Reset fakta
+                st.experimental_rerun()
 
-        # Jika semua step sudah dilalui
-        elif step > len(fakta_kecerdasan) and not st.session_state['hasil']:
-            st.session_state['tidak_ada_kecerdasan'] = True
-            
         # ------------------ Menampilkan Hasil Diagnosis ------------------
-        if 'hasil' in st.session_state:
-            if st.session_state['hasil'] == "Tidak ada kecerdasan yang sesuai":
-                st.warning("Maaf, tidak ada kecerdasan yang sesuai berdasarkan jawaban kamu.")
-            else:
-                kecerdasan_id = st.session_state['step'] - 1  # Get the corresponding intelligence ID (step-1)
+        if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
+            kecerdasan_id = st.session_state['step'] - 1  # Get the corresponding intelligence ID (step-1)
             
-                if kecerdasan_id in deskripsi_kecerdasan:
-                    # Get the description and recommended majors for the selected intelligence
-                    jenis_kecerdasan, deskripsi, jurusan = deskripsi_kecerdasan[kecerdasan_id]
-                    
-                    # Display the results
-                    st.success(f"Jenis Kecerdasan: {jenis_kecerdasan}")
-                    st.write(f"Deskripsi: {deskripsi}")
-                    st.markdown("**Jurusan Rekomendasi:**")
-                    for item in jurusan:
-                        st.write(f"- {item}")
-                    
-                    # Tombol Muat Ulang baru muncul setelah hasil
-                    if st.button("Dapatkan Rekomendasi Lagi"):
-                        st.session_state.clear()  # Clear session state to reset everything
-                        st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
-                        st.rerun()  # Refresh the page to show the Diagnosis page
-    
-                    # Tombol Logout di Dashboard atau Diagnosis
-                    if st.session_state["user_authenticated"]:
-                        if st.button("Logout"):
-                            logout()  # Memanggil fungsi logout untuk mengatur session dan mereload halaman
-                            st.success("Berhasil logout!")
+            if kecerdasan_id in deskripsi_kecerdasan:
+                # Get the description and recommended majors for the selected intelligence
+                jenis_kecerdasan, deskripsi, jurusan = deskripsi_kecerdasan[kecerdasan_id]
+                
+                # Display the results
+                st.success(f"Jenis Kecerdasan: {jenis_kecerdasan}")
+                st.write(f"Deskripsi: {deskripsi}")
+                st.markdown("**Jurusan Rekomendasi:**")
+                for item in jurusan:
+                    st.write(f"- {item}")
+                
+                # Tombol Muat Ulang baru muncul setelah hasil
+                if st.button("Dapatkan Rekomendasi Lagi"):
+                    st.session_state.clear()  # Clear session state to reset everything
+                    st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
+                    st.experimental_rerun()  # Refresh the page to show the Diagnosis page
+
+                # Tombol Logout di Dashboard atau Diagnosis
+                if st.session_state["user_authenticated"]:
+                    if st.button("Logout"):
+                        logout()  # Memanggil fungsi logout untuk mengatur session dan mereload halaman
+                        st.success("Berhasil logout!")
             
     # Call forward_chaining function here directly, no need for `if __name__ == "__main__":`
     forward_chaining()
