@@ -248,13 +248,13 @@ elif st.session_state["selected_page"] == "Diagnosis":
 
         # Menampilkan pertanyaan bertahap berdasarkan fakta
         step = st.session_state['step']
-
+    
         # Pastikan step tidak melebihi total kecerdasan yang ada
         if step > len(fakta_kecerdasan):
             step = 1  # Mulai lagi dari awal jika step lebih dari jumlah kecerdasan
-
+    
         total_fakta = len(fakta_kecerdasan[step])
-
+    
         # Menampilkan pertanyaan dan tombol Lanjut
         if step in fakta_kecerdasan and st.session_state['hasil'] is None:
             current_fakta = fakta_kecerdasan[step]
@@ -271,38 +271,27 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 lanjut_button = st.button("Lanjut")
     
                 if lanjut_button and jawaban is not None:
-                    if jawaban == "Tidak":
-                        st.session_state['fakta_tidak_total'] += 1  # Tambahkan total "Tidak"
-                        # Evaluasi dan langsung keluar jika "Tidak" ditemukan
-                        st.session_state['hasil'] = None  # Optional, reset hasil to be empty
-                        st.session_state['step'] += 1  # Skip this set of questions, go to next
-                        st.session_state['fakta'] = []  # Clear previous answers
-                        st.rerun()  # Trigger page refresh to go to next step
-                    else:
-                        st.session_state['fakta'].append(jawaban)
+                    # Simpan jawaban
+                    st.session_state['fakta'].append(jawaban)
     
-                        if next_fakta_index == len(current_fakta) - 1:
-                            st.session_state['step'] += 1
-                            st.session_state['fakta'] = []
-                            st.rerun()  # Refresh the page to continue to the next step
+                    # Jika ada jawaban "Tidak", langsung beri pesan hasil dan tidak lanjutkan ke langkah berikutnya
+                    if jawaban == "Tidak":
+                        st.session_state['hasil'] = "Maaf, tidak ada rekomendasi untuk kamu."
+                        st.session_state.clear()  # Clear session state to reset everything
+                        st.stop()  # Stop further execution
+    
+                    st.session_state['step'] += 1  # Lanjut ke langkah berikutnya
+                    st.rerun()  # Refresh halaman
     
         # ------------------ Menampilkan Hasil Diagnosis ------------------
         if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
-            # Display the recommended majors if a valid result exists
-            kecerdasan_id = st.session_state['step'] - 1
-            if kecerdasan_id in deskripsi_kecerdasan:
-                jenis_kecerdasan, deskripsi, jurusan = deskripsi_kecerdasan[kecerdasan_id]
-                st.success(f"Jenis Kecerdasan: {jenis_kecerdasan}")
-                st.write(f"Deskripsi: {deskripsi}")
-                st.markdown("**Jurusan Rekomendasi:**")
-                for item in jurusan:
-                    st.write(f"- {item}")
-                
-                # Tombol Muat Ulang baru muncul setelah hasil
-                if st.button("Dapatkan Rekomendasi Lagi"):
-                    st.session_state.clear()  # Clear session state to reset everything
-                    st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
-                    st.rerun()  # Refresh the page to show the Diagnosis page
+            st.write(st.session_state['hasil'])
+    
+            # Tombol Muat Ulang baru muncul setelah hasil
+            if st.button("Dapatkan Rekomendasi Lagi"):
+                st.session_state.clear()  # Clear session state to reset everything
+                st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
+                st.rerun()  # Refresh the page to show the Diagnosis page
                 
                 # Tombol Logout di Dashboard atau Diagnosis
                 if st.session_state["user_authenticated"]:
