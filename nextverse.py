@@ -280,12 +280,12 @@ elif st.session_state["selected_page"] == "Diagnosis":
                     else:
                         st.rerun()
             else:
-            if all(j == "Ya" for j in st.session_state['fakta']):
-                st.session_state['hasil'] = rekomendasi_jurusan[step]
-            else:
-                st.session_state['step'] += 1
-                st.session_state['fakta'] = []
-            st.rerun()
+                if all(j == "Ya" for j in st.session_state['fakta']):
+                    st.session_state['hasil'] = rekomendasi_jurusan[step]
+                else:
+                    st.session_state['step'] += 1
+                    st.session_state['fakta'] = []
+                st.rerun()
 
         # Jika semua step sudah dilalui
         elif step > len(fakta_kecerdasan) and not st.session_state['hasil']:
