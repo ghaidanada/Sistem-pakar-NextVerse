@@ -272,7 +272,8 @@ elif st.session_state["selected_page"] == "Diagnosis":
                     st.session_state['fakta'].append(jawaban)
                     if jawaban == "Tidak":
                         st.session_state['step'] += 1  # Pindah ke step berikutnya jika jawabannya "Tidak"
-                        st.session_state['fakta'] = []  # Reset fakta untuk step ini
+                        if st.session_state['step'] > len(fakta_kecerdasan):
+                            st.session_state['hasil'] = "Tidak ada kecerdasan yang sesuai"
                         st.rerun()
                     else:
                         st.rerun()
@@ -280,36 +281,42 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 # Evaluasi jawaban fakta per kecerdasan
                 if all(j == "Ya" for j in st.session_state['fakta']):
                     st.session_state['hasil'] = rekomendasi_jurusan[step]
-                st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
-                st.session_state['fakta'] = []  # Reset fakta
+                else:
+                    st.session_state['step'] += 1  # Pindah ke kecerdasan berikutnya
+                    st.session_state['fakta'] = []  # Reset fakta untuk kecerdasan berikutnya
+                    if st.session_state['step'] > len(fakta_kecerdasan):  # Jika semua kecerdasan sudah ditanya
+                        st.session_state['hasil'] = "Tidak ada kecerdasan yang sesuai"
                 st.rerun()
-
+                
         # ------------------ Menampilkan Hasil Diagnosis ------------------
-        if 'hasil' in st.session_state and st.session_state['hasil'] is not None:
-            kecerdasan_id = st.session_state['step'] - 1  # Get the corresponding intelligence ID (step-1)
+        if 'hasil' in st.session_state:
+            if st.session_state['hasil'] == "Tidak ada kecerdasan yang sesuai":
+                st.warning("Maaf, tidak ada kecerdasan yang sesuai berdasarkan jawaban kamu.")
+            else:
+                kecerdasan_id = st.session_state['step'] - 1  # Get the corresponding intelligence ID (step-1)
             
-            if kecerdasan_id in deskripsi_kecerdasan:
-                # Get the description and recommended majors for the selected intelligence
-                jenis_kecerdasan, deskripsi, jurusan = deskripsi_kecerdasan[kecerdasan_id]
-                
-                # Display the results
-                st.success(f"Jenis Kecerdasan: {jenis_kecerdasan}")
-                st.write(f"Deskripsi: {deskripsi}")
-                st.markdown("**Jurusan Rekomendasi:**")
-                for item in jurusan:
-                    st.write(f"- {item}")
-                
-                # Tombol Muat Ulang baru muncul setelah hasil
-                if st.button("Dapatkan Rekomendasi Lagi"):
-                    st.session_state.clear()  # Clear session state to reset everything
-                    st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
-                    st.rerun()  # Refresh the page to show the Diagnosis page
-
-                # Tombol Logout di Dashboard atau Diagnosis
-                if st.session_state["user_authenticated"]:
-                    if st.button("Logout"):
-                        logout()  # Memanggil fungsi logout untuk mengatur session dan mereload halaman
-                        st.success("Berhasil logout!")
+                if kecerdasan_id in deskripsi_kecerdasan:
+                    # Get the description and recommended majors for the selected intelligence
+                    jenis_kecerdasan, deskripsi, jurusan = deskripsi_kecerdasan[kecerdasan_id]
+                    
+                    # Display the results
+                    st.success(f"Jenis Kecerdasan: {jenis_kecerdasan}")
+                    st.write(f"Deskripsi: {deskripsi}")
+                    st.markdown("**Jurusan Rekomendasi:**")
+                    for item in jurusan:
+                        st.write(f"- {item}")
+                    
+                    # Tombol Muat Ulang baru muncul setelah hasil
+                    if st.button("Dapatkan Rekomendasi Lagi"):
+                        st.session_state.clear()  # Clear session state to reset everything
+                        st.session_state["selected_page"] = "Diagnosis"  # Go back to the diagnosis page
+                        st.rerun()  # Refresh the page to show the Diagnosis page
+    
+                    # Tombol Logout di Dashboard atau Diagnosis
+                    if st.session_state["user_authenticated"]:
+                        if st.button("Logout"):
+                            logout()  # Memanggil fungsi logout untuk mengatur session dan mereload halaman
+                            st.success("Berhasil logout!")
             
     # Call forward_chaining function here directly, no need for `if __name__ == "__main__":`
     forward_chaining()
