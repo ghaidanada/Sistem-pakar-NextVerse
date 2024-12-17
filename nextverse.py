@@ -298,6 +298,9 @@ elif st.session_state["selected_page"] == "Diagnosis":
                 st.markdown("**Jurusan Rekomendasi:**")
                 for item in jurusan:
                     st.write(f"- {item}")
+
+                else:
+                    st.warning("Maaf, tidak ada kecerdasan yang cocok berdasarkan jawaban Anda.")
                 
                 # Tombol Muat Ulang baru muncul setelah hasil
                 if st.button("Dapatkan Rekomendasi Lagi"):
